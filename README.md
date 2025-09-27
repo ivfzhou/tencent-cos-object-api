@@ -3,6 +3,7 @@
 高性能腾讯云 COS 文件上传下载删除查看客户端
 
 [![codecov](https://codecov.io/gh/ivfzhou/tencent-cos-object-api/graph/badge.svg?token=N949TSNU2T)](https://codecov.io/gh/ivfzhou/tencent-cos-object-api)
+[![Go Reference](https://pkg.go.dev/badge/gitee.com/ivfzhou/tencent-cos-object-api.svg)](https://pkg.go.dev/gitee.com/ivfzhou/tencent-cos-object-api)
 
 # 使用
 
