@@ -29,7 +29,7 @@ import (
 
 func TestDelete(t *testing.T) {
 	t.Run("正常运行", func(t *testing.T) {
-		for i := 0; i < 100; i++ {
+		for range 100 {
 			atomic.StoreInt32(&CloseCount, 0)
 			fileId := "/ivfzhou_test_file"
 			fn := func(req *http.Request) (*http.Response, error) {
@@ -60,7 +60,7 @@ func TestDelete(t *testing.T) {
 	})
 
 	t.Run("删除失败", func(t *testing.T) {
-		for i := 0; i < 100; i++ {
+		for range 100 {
 			fileId := "/ivfzhou_test_file"
 			expectedErr := "expected error"
 			atomic.StoreInt32(&CloseCount, 0)
@@ -94,11 +94,11 @@ func TestDelete(t *testing.T) {
 
 func TestDeletes(t *testing.T) {
 	t.Run("正常运行", func(t *testing.T) {
-		for i := 0; i < 100; i++ {
+		for range 100 {
 			atomic.StoreInt32(&CloseCount, 0)
 			count := rand.Intn(2000) + 1
 			files := make([]string, 0, count)
-			for i := 0; i < count; i++ {
+			for i := range count {
 				files = append(files, "file/ivfzhou_test_file"+strconv.Itoa(i))
 			}
 			fn := func(req *http.Request) (*http.Response, error) {
@@ -171,13 +171,13 @@ func TestDeletes(t *testing.T) {
 	})
 
 	t.Run("删除失败", func(t *testing.T) {
-		for i := 0; i < 100; i++ {
+		for range 100 {
 			atomic.StoreInt32(&CloseCount, 0)
 			count := rand.Intn(2000) + 1
 			files := make([]string, 0, count)
 			occurErrIndex := rand.Intn(count)
 			expectedErr := "expected error"
-			for i := 0; i < count; i++ {
+			for i := range count {
 				files = append(files, "file/ivfzhou_test_file"+strconv.Itoa(i))
 			}
 			expectedFileId := files[occurErrIndex]

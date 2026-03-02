@@ -35,7 +35,7 @@ import (
 
 func TestDownload(t *testing.T) {
 	t.Run("正常运行", func(t *testing.T) {
-		for i := 0; i < 25; i++ {
+		for range 25 {
 			data, much := MakeBytes()
 			fileId := "/ivfzhou_test_file"
 			atomic.StoreInt32(&CloseCount, 0)
@@ -128,7 +128,7 @@ func TestDownload(t *testing.T) {
 	})
 
 	t.Run("下载失败", func(t *testing.T) {
-		for i := 0; i < 30; i++ {
+		for range 30 {
 			data, much := MakeBytes()
 			fileId := "/ivfzhou_test_file"
 			expectedErr := "expected error"
@@ -250,7 +250,7 @@ func TestDownload(t *testing.T) {
 	})
 
 	t.Run("上下文终止", func(t *testing.T) {
-		for i := 0; i < 25; i++ {
+		for range 25 {
 			data, much := MakeBytes()
 			fileId := "/ivfzhou_test_file"
 			expectedErr := errors.New("expected error")
@@ -361,7 +361,7 @@ func TestDownload(t *testing.T) {
 	})
 
 	t.Run("响应无数据", func(t *testing.T) {
-		for i := 0; i < 100; i++ {
+		for range 100 {
 			fileId := "/ivfzhou_test_file"
 			atomic.StoreInt32(&CloseCount, 0)
 			fn := func(req *http.Request) (*http.Response, error) {
@@ -420,7 +420,7 @@ func TestDownload(t *testing.T) {
 
 func TestDownloadToWriter(t *testing.T) {
 	t.Run("正常运行", func(t *testing.T) {
-		for i := 0; i < 25; i++ {
+		for range 25 {
 			fileId := "/ivfzhou_test_file"
 			data, much := MakeBytes()
 			atomic.StoreInt32(&CloseCount, 0)
@@ -491,7 +491,7 @@ func TestDownloadToWriter(t *testing.T) {
 	})
 
 	t.Run("写入失败", func(t *testing.T) {
-		for i := 0; i < 25; i++ {
+		for range 25 {
 			fileId := "/ivfzhou_test_file"
 			data, much := MakeBytes()
 			atomic.StoreInt32(&CloseCount, -1)
@@ -571,7 +571,7 @@ func TestDownloadToWriter(t *testing.T) {
 	})
 
 	t.Run("下载失败", func(t *testing.T) {
-		for i := 0; i < 25; i++ {
+		for range 25 {
 			fileId := "/ivfzhou_test_file"
 			data, much := MakeBytes()
 			occurErrIndex := rand.Intn(len(data)/(cos.MultiThreshold*cos.PartSize) + 1)
@@ -643,7 +643,7 @@ func TestDownloadToWriter(t *testing.T) {
 	})
 
 	t.Run("上下文终止", func(t *testing.T) {
-		for i := 0; i < 25; i++ {
+		for range 25 {
 			fileId := "/ivfzhou_test_file"
 			data, much := MakeBytes()
 			occurErrIndex := rand.Intn(len(data)/(cos.MultiThreshold*cos.PartSize) + 1)
@@ -719,7 +719,7 @@ func TestDownloadToWriter(t *testing.T) {
 	})
 
 	t.Run("读取失败", func(t *testing.T) {
-		for i := 0; i < 25; i++ {
+		for range 25 {
 			fileId := "/ivfzhou_test_file"
 			data, much := MakeBytes()
 			occurErrIndex := rand.Intn(len(data)/(cos.MultiThreshold*cos.PartSize) + 1)
@@ -799,7 +799,7 @@ func TestDownloadToWriter(t *testing.T) {
 
 func TestDownloadToWriterWithSize(t *testing.T) {
 	t.Run("正常运行", func(t *testing.T) {
-		for i := 0; i < 25; i++ {
+		for range 25 {
 			fileId := "/ivfzhou_test_file"
 			data, much := MakeBytes()
 			atomic.StoreInt32(&CloseCount, 0)
@@ -867,7 +867,7 @@ func TestDownloadToWriterWithSize(t *testing.T) {
 	})
 
 	t.Run("写入失败", func(t *testing.T) {
-		for i := 0; i < 25; i++ {
+		for range 25 {
 			fileId := "/ivfzhou_test_file"
 			data, much := MakeBytes()
 			atomic.StoreInt32(&CloseCount, -1)
@@ -944,7 +944,7 @@ func TestDownloadToWriterWithSize(t *testing.T) {
 	})
 
 	t.Run("下载失败", func(t *testing.T) {
-		for i := 0; i < 25; i++ {
+		for range 25 {
 			fileId := "/ivfzhou_test_file"
 			data, much := MakeBytes()
 			occurErrIndex := rand.Intn(len(data)/(cos.MultiThreshold*cos.PartSize) + 1)
@@ -1013,7 +1013,7 @@ func TestDownloadToWriterWithSize(t *testing.T) {
 	})
 
 	t.Run("上下文终止", func(t *testing.T) {
-		for i := 0; i < 25; i++ {
+		for range 25 {
 			fileId := "/ivfzhou_test_file"
 			data, much := MakeBytes()
 			occurErrIndex := rand.Intn(len(data)/(cos.MultiThreshold*cos.PartSize) + 1)
@@ -1086,7 +1086,7 @@ func TestDownloadToWriterWithSize(t *testing.T) {
 	})
 
 	t.Run("读取失败", func(t *testing.T) {
-		for i := 0; i < 25; i++ {
+		for range 25 {
 			fileId := "/ivfzhou_test_file"
 			data, much := MakeBytes()
 			occurErrIndex := rand.Intn(len(data)/(cos.MultiThreshold*cos.PartSize) + 1)
@@ -1163,7 +1163,7 @@ func TestDownloadToWriterWithSize(t *testing.T) {
 
 func TestDownloadToDisk(t *testing.T) {
 	t.Run("正常运行", func(t *testing.T) {
-		for i := 0; i < 25; i++ {
+		for range 25 {
 			fileId := "/ivfzhou_test_file"
 			filePath := filepath.Join(os.TempDir(), fileId)
 			data, much := MakeBytes()
@@ -1238,7 +1238,7 @@ func TestDownloadToDisk(t *testing.T) {
 	})
 
 	t.Run("下载失败", func(t *testing.T) {
-		for i := 0; i < 25; i++ {
+		for range 25 {
 			fileId := "/ivfzhou_test_file"
 			filePath := filepath.Join(os.TempDir(), fileId)
 			data, much := MakeBytes()
@@ -1318,7 +1318,7 @@ func TestDownloadToDisk(t *testing.T) {
 	})
 
 	t.Run("读取失败", func(t *testing.T) {
-		for i := 0; i < 25; i++ {
+		for range 25 {
 			fileId := "/ivfzhou_test_file"
 			filePath := filepath.Join(os.TempDir(), fileId)
 			data, much := MakeBytes()
@@ -1403,7 +1403,7 @@ func TestDownloadToDisk(t *testing.T) {
 	})
 
 	t.Run("上下文终止", func(t *testing.T) {
-		for i := 0; i < 25; i++ {
+		for range 25 {
 			fileId := "/ivfzhou_test_file"
 			filePath := filepath.Join(os.TempDir(), fileId)
 			data, much := MakeBytes()
@@ -1491,7 +1491,7 @@ func TestDownloadToDisk(t *testing.T) {
 
 func TestDownloadToWriterAt(t *testing.T) {
 	t.Run("正常运行", func(t *testing.T) {
-		for i := 0; i < 20; i++ {
+		for range 20 {
 			fileId := "/ivfzhou_test_file"
 			data, much := MakeBytes()
 			fn := func(req *http.Request) (*http.Response, error) {
@@ -1583,7 +1583,7 @@ func TestDownloadToWriterAt(t *testing.T) {
 	})
 
 	t.Run("下载失败", func(t *testing.T) {
-		for i := 0; i < 20; i++ {
+		for range 20 {
 			fileId := "/ivfzhou_test_file"
 			data, much := MakeBytes()
 			expectedErr := errors.New("expected error")
@@ -1678,7 +1678,7 @@ func TestDownloadToWriterAt(t *testing.T) {
 	})
 
 	t.Run("上下文终止", func(t *testing.T) {
-		for i := 0; i < 20; i++ {
+		for range 20 {
 			fileId := "/ivfzhou_test_file"
 			data, much := MakeBytes()
 			expectedErr := errors.New("expected error")

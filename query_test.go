@@ -29,7 +29,7 @@ import (
 
 func TestInfo(t *testing.T) {
 	t.Run("正常运行", func(t *testing.T) {
-		for i := 0; i < 100; i++ {
+		for range 100 {
 			fileId := "/ivfzhou_test_file"
 			fileSize := rand.Int63n(999999)
 			etag := strconv.FormatInt(rand.Int63n(999999), 10)
@@ -89,7 +89,7 @@ func TestInfo(t *testing.T) {
 	})
 
 	t.Run("响应失败", func(t *testing.T) {
-		for i := 0; i < 100; i++ {
+		for range 100 {
 			fileId := "/ivfzhou_test_file"
 			expectedErr := "expected error"
 			atomic.StoreInt32(&CloseCount, 0)
@@ -122,7 +122,7 @@ func TestInfo(t *testing.T) {
 	})
 
 	t.Run("文件不存在", func(t *testing.T) {
-		for i := 0; i < 100; i++ {
+		for range 100 {
 			atomic.StoreInt32(&CloseCount, 0)
 			fileId := "/ivfzhou_test_file"
 			atomic.StoreInt32(&CloseCount, 0)
@@ -155,7 +155,7 @@ func TestInfo(t *testing.T) {
 	})
 
 	t.Run("上下文终止", func(t *testing.T) {
-		for i := 0; i < 100; i++ {
+		for range 100 {
 			fileId := "/ivfzhou_test_file"
 			expectedErr := errors.New("expected error")
 			atomic.StoreInt32(&CloseCount, 0)
@@ -197,7 +197,7 @@ func TestInfo(t *testing.T) {
 
 func TestExist(t *testing.T) {
 	t.Run("正常运行", func(t *testing.T) {
-		for i := 0; i < 100; i++ {
+		for range 100 {
 			fileId := "/ivfzhou_test_file"
 			no := rand.Intn(2) == 1
 			atomic.StoreInt32(&CloseCount, 0)
@@ -237,7 +237,7 @@ func TestExist(t *testing.T) {
 	})
 
 	t.Run("响应失败", func(t *testing.T) {
-		for i := 0; i < 100; i++ {
+		for range 100 {
 			fileId := "/ivfzhou_test_file"
 			expectedErr := "expected error"
 			atomic.StoreInt32(&CloseCount, 0)
@@ -308,7 +308,7 @@ func TestExist(t *testing.T) {
 }
 
 func TestListFiles(t *testing.T) {
-	for i := 0; i < 100; i++ {
+	for range 100 {
 		atomic.StoreInt32(&CloseCount, 0)
 		type Contents struct {
 			Key          string

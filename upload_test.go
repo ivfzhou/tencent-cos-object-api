@@ -34,7 +34,7 @@ import (
 
 func TestUpload(t *testing.T) {
 	t.Run("正常运行", func(t *testing.T) {
-		for i := 0; i < 10; i++ {
+		for range 10 {
 			data, much := MakeBytes()
 			uploadId := "expected upload id"
 			fileId := "/ivfzhou_test_file"
@@ -221,7 +221,7 @@ func TestUpload(t *testing.T) {
 	})
 
 	t.Run("上传失败", func(t *testing.T) {
-		for i := 0; i < 25; i++ {
+		for range 25 {
 			uploadId := "expected upload id"
 			data, much := MakeBytes()
 			fileId := "/ivfzhou_test_file"
@@ -457,7 +457,7 @@ func TestUpload(t *testing.T) {
 	})
 
 	t.Run("没有内容上传", func(t *testing.T) {
-		for i := 0; i < 100; i++ {
+		for range 100 {
 			fileId := "/ivfzhou_test_file"
 			atomic.StoreInt32(&CloseCount, 0)
 			fn := func(req *http.Request) (*http.Response, error) {
@@ -499,7 +499,7 @@ func TestUpload(t *testing.T) {
 	})
 
 	t.Run("上下文终止", func(t *testing.T) {
-		for i := 0; i < 25; i++ {
+		for range 25 {
 			uploadId := "expected upload id"
 			data, much := MakeBytes()
 			fileId := "/ivfzhou_test_file"
@@ -727,7 +727,7 @@ func TestUpload(t *testing.T) {
 
 func TestUploadFromReader(t *testing.T) {
 	t.Run("正常运行", func(t *testing.T) {
-		for i := 0; i < 20; i++ {
+		for range 20 {
 			data, _ := MakeBytes()
 			uploadId := "expected upload id"
 			fileId := "/ivfzhou_test_file"
@@ -902,7 +902,7 @@ func TestUploadFromReader(t *testing.T) {
 	})
 
 	t.Run("上传失败", func(t *testing.T) {
-		for i := 0; i < 25; i++ {
+		for range 25 {
 			data, _ := MakeBytes()
 			uploadId := "expected upload id"
 			fileId := "/ivfzhou_test_file"
@@ -1130,7 +1130,7 @@ func TestUploadFromReader(t *testing.T) {
 	})
 
 	t.Run("Reader 读取失败", func(t *testing.T) {
-		for i := 0; i < 25; i++ {
+		for range 25 {
 			reqBody, _ := MakeBytes()
 			uploadId := "expected upload id"
 			fileId := "/ivfzhou_test_file"
@@ -1328,7 +1328,7 @@ func TestUploadFromReader(t *testing.T) {
 	})
 
 	t.Run("没有内容上传", func(t *testing.T) {
-		for i := 0; i < 100; i++ {
+		for range 100 {
 			uploadId := "expected upload id"
 			fileId := "/ivfzhou_test_file"
 			result := sync.Map{}
@@ -1503,7 +1503,7 @@ func TestUploadFromReader(t *testing.T) {
 	})
 
 	t.Run("上下文终止", func(t *testing.T) {
-		for i := 0; i < 30; i++ {
+		for range 30 {
 			data, _ := MakeBytes()
 			uploadId := "expected upload id"
 			fileId := "/ivfzhou_test_file"
@@ -1724,7 +1724,7 @@ func TestUploadFromReader(t *testing.T) {
 
 func TestUploadFromReaderWithSize(t *testing.T) {
 	t.Run("正常运行", func(t *testing.T) {
-		for i := 0; i < 20; i++ {
+		for range 20 {
 			data, much := MakeBytes()
 			uploadId := "expected upload id"
 			fileId := "/ivfzhou_test_file"
@@ -1911,7 +1911,7 @@ func TestUploadFromReaderWithSize(t *testing.T) {
 	})
 
 	t.Run("上传失败", func(t *testing.T) {
-		for i := 0; i < 20; i++ {
+		for range 20 {
 			fileId := "/ivfzhou_test_file"
 			uploadId := "expected upload id"
 			data, much := MakeBytes()
@@ -2147,7 +2147,7 @@ func TestUploadFromReaderWithSize(t *testing.T) {
 	})
 
 	t.Run("Reader 读取失败", func(t *testing.T) {
-		for i := 0; i < 25; i++ {
+		for range 25 {
 			data, much := MakeBytes()
 			uploadId := "expected upload id"
 			fileId := "/ivfzhou_test_file"
@@ -2357,7 +2357,7 @@ func TestUploadFromReaderWithSize(t *testing.T) {
 	})
 
 	t.Run("没有内容上传", func(t *testing.T) {
-		for i := 0; i < 100; i++ {
+		for range 100 {
 			fileId := "/ivfzhou_test_file"
 			atomic.StoreInt32(&CloseCount, 0)
 			fn := func(req *http.Request) (*http.Response, error) {
@@ -2402,7 +2402,7 @@ func TestUploadFromReaderWithSize(t *testing.T) {
 	})
 
 	t.Run("上下文终止", func(t *testing.T) {
-		for i := 0; i < 20; i++ {
+		for range 20 {
 			data, much := MakeBytes()
 			uploadId := "expected upload id"
 			fileId := "/ivfzhou_test_file"
@@ -2629,7 +2629,7 @@ func TestUploadFromReaderWithSize(t *testing.T) {
 
 func TestUploadFromDisk(t *testing.T) {
 	t.Run("正常运行", func(t *testing.T) {
-		for i := 0; i < 20; i++ {
+		for range 20 {
 			data, much := MakeBytes()
 			uploadId := "expected upload id"
 			fileObj, err := os.CreateTemp("", "")
@@ -2829,7 +2829,7 @@ func TestUploadFromDisk(t *testing.T) {
 	})
 
 	t.Run("上传失败", func(t *testing.T) {
-		for i := 0; i < 20; i++ {
+		for range 20 {
 			uploadId := "expected upload id"
 			data, much := MakeBytes()
 			fileObj, err := os.CreateTemp("", "")
@@ -3082,7 +3082,7 @@ func TestUploadFromDisk(t *testing.T) {
 	})
 
 	t.Run("上下文终止", func(t *testing.T) {
-		for i := 0; i < 20; i++ {
+		for range 20 {
 			uploadId := "expected upload id"
 			data, much := MakeBytes()
 			fileObj, err := os.CreateTemp("", "")
@@ -3322,7 +3322,7 @@ func TestUploadFromDisk(t *testing.T) {
 	})
 
 	t.Run("没有数据", func(t *testing.T) {
-		for i := 0; i < 100; i++ {
+		for range 100 {
 			fileObj, err := os.CreateTemp("", "")
 			if err != nil {
 				t.Errorf("unexpected error: want nil, got %v", err)

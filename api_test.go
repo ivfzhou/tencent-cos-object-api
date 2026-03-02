@@ -168,11 +168,11 @@ func TestPerformance(t *testing.T) {
 	}
 	var uploadFiles, downloadFiles [10]string
 	fileIds := make([]string, 0, 20)
-	for i := 0; i < len(uploadFiles); i++ {
+	for i := range len(uploadFiles) {
 		uploadFiles[i] = filepath.Join(os.TempDir(), `ivfzhou_test_file_`+strconv.Itoa(i))
 		fileIds = append(fileIds, filepath.Base(uploadFiles[i]))
 	}
-	for i := 0; i < len(downloadFiles); i++ {
+	for i := range len(downloadFiles) {
 		downloadFiles[i] = filepath.Join(os.TempDir(), `ivfzhou_test_file_`+strconv.Itoa(len(uploadFiles)+i))
 		fileIds = append(fileIds, downloadFiles[i])
 	}

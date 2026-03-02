@@ -57,7 +57,6 @@ func rollbackRequest(req *http.Request) {
 		req.RemoteAddr = ""
 		req.RequestURI = ""
 		req.TLS = nil
-		req.Cancel = nil
 		req.Response = nil
 		req.Pattern = ""
 		requestPool.Put(req)

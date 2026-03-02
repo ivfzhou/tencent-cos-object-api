@@ -32,7 +32,7 @@ import (
 
 func TestPing(t *testing.T) {
 	t.Run("正常运行", func(t *testing.T) {
-		for i := 0; i < 100; i++ {
+		for range 100 {
 			atomic.StoreInt32(&CloseCount, 0)
 			fn := func(req *http.Request) (*http.Response, error) {
 				path := req.URL.Path
@@ -66,7 +66,7 @@ func TestPing(t *testing.T) {
 	})
 
 	t.Run("响应失败", func(t *testing.T) {
-		for i := 0; i < 100; i++ {
+		for range 100 {
 			atomic.StoreInt32(&CloseCount, 0)
 			expectedErr := "expected error"
 			fn := func(req *http.Request) (*http.Response, error) {
@@ -101,7 +101,7 @@ func TestPing(t *testing.T) {
 	})
 
 	t.Run("上下文终止", func(t *testing.T) {
-		for i := 0; i < 100; i++ {
+		for range 100 {
 			atomic.StoreInt32(&CloseCount, 0)
 			expectedErr := errors.New("expected error")
 			ctx, cancel := NewCtxCancelWithError()
@@ -143,7 +143,7 @@ func TestPing(t *testing.T) {
 }
 
 func TestGenerateAuthorization(t *testing.T) {
-	for i := 0; i < 100; i++ {
+	for range 100 {
 		client := cos.NewClient(host, appKey, appSecret)
 		fileId := strconv.Itoa(rand.Intn(999999))
 		method := http.MethodGet
