@@ -40,7 +40,7 @@ type ctxCancelWithError struct {
 }
 
 type writeCloser struct {
-	closeFlag int64
+	closeFlag atomic.Int64
 	w         func([]byte) (int, error)
 }
 
@@ -51,7 +51,7 @@ type writerAt struct {
 type readCloser struct {
 	closeErr    error
 	readErr     error
-	closeFlag   int32
+	closeFlag   atomic.Int32
 	data        []byte
 	readCount   int
 	total       int
@@ -214,7 +214,7 @@ func (rc *readCloser) Read(p []byte) (int, error) {
 }
 
 func (rc *readCloser) Close() error {
-	if atomic.CompareAndSwapInt32(&rc.closeFlag, 0, 1) {
+	if rc.closeFlag.CompareAndSwap(0, 1) {
 		atomic.AddInt32(&CloseCount, -1)
 		return rc.closeErr
 	}
@@ -242,7 +242,7 @@ func (w *writeCloser) Write(p []byte) (n int, err error) {
 }
 
 func (w *writeCloser) Close() error {
-	if atomic.CompareAndSwapInt64(&w.closeFlag, 0, 1) {
+	if w.closeFlag.CompareAndSwap(0, 1) {
 		atomic.AddInt32(&CloseCount, -1)
 		return nil
 	}

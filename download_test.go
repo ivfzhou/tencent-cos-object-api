@@ -20,6 +20,7 @@ import (
 	"io"
 	"math/rand"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"slices"
@@ -1554,7 +1555,7 @@ func TestDownloadToWriterAt(t *testing.T) {
 			}
 			result := sync.Map{}
 			wa := NewWriterAt(func(bs []byte, of int64) (int, error) {
-				index := rand.Intn(len(bs) + 1)
+				index := rand.Intn(len(bs)) + 1
 				p := make([]byte, index)
 				copy(p, bs[:index])
 				result.Store(of, p)
@@ -1590,7 +1591,7 @@ func TestDownloadToWriterAt(t *testing.T) {
 			occurErrIndex := rand.Intn(len(data)/(cos.MultiThreshold*cos.PartSize) + 1)
 			result := sync.Map{}
 			wa := NewWriterAt(func(bs []byte, of int64) (int, error) {
-				index := rand.Intn(len(bs) + 1)
+				index := rand.Intn(len(bs)) + 1
 				p := make([]byte, index)
 				copy(p, bs[:index])
 				result.Store(of, p)
@@ -1686,7 +1687,7 @@ func TestDownloadToWriterAt(t *testing.T) {
 			occurErrIndex := rand.Intn(len(data)/(cos.MultiThreshold*cos.PartSize) + 1)
 			result := sync.Map{}
 			wa := NewWriterAt(func(bs []byte, of int64) (int, error) {
-				index := rand.Intn(len(bs) + 1)
+				index := rand.Intn(len(bs)) + 1
 				p := make([]byte, index)
 				copy(p, bs[:index])
 				result.Store(of, p)
@@ -1773,4 +1774,140 @@ func TestDownloadToWriterAt(t *testing.T) {
 			}
 		}
 	})
+}
+
+// TestDownloadMultipartExactMultiple 回归验证：当文件大小恰好是分片大小的整数倍时，
+// 分片下载不应多发一个非法区间（offset > end）的请求，否则真实 COS 服务端会返回 416 导致下载失败。
+func TestDownloadMultipartExactMultiple(t *testing.T) {
+	for range 20 {
+		partSize := int64(cos.PartSize)
+		// 保证 fileSize 是分片大小的整数倍，且超过分片阈值以触发分片下载。
+		parts := int64(cos.MultiThreshold + rand.Intn(10) + 1)
+		fileSize := partSize * parts
+		data := MakeBytesWithSize(int(fileSize))
+		fileId := "/ivfzhou_test_file"
+		atomic.StoreInt32(&CloseCount, 0)
+		var rangeCount atomic.Int64
+		fn := func(req *http.Request) (*http.Response, error) {
+			path := req.URL.Path
+			if path != fileId {
+				t.Errorf("unexpected path: want %v, got %v", fileId, path)
+			}
+			if req.Host != host {
+				t.Errorf("unexpected host: want %v, got %v", host, req.Host)
+			}
+			auth := req.Header.Get("Authorization")
+			if !CheckAuthorization(auth, path, req.Method, req.Header, req.URL.Query()) {
+				t.Errorf("unexpected auth: got %v", auth)
+			}
+			switch req.Method {
+			case http.MethodHead:
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       NewReader(nil, nil, nil, nil),
+					Header:     http.Header{"Content-Length": []string{strconv.FormatInt(fileSize, 10)}},
+				}, nil
+			case http.MethodGet:
+				rangeStr := req.Header.Get("Range")
+				if len(rangeStr) <= 0 {
+					t.Errorf("unexpected range: want >0, got %v", rangeStr)
+				}
+				rangeStr = rangeStr[len("bytes="):]
+				pair := strings.Split(rangeStr, "-")
+				if len(pair) != 2 {
+					t.Errorf("unexpected range: want =2, got %v", pair)
+				}
+				begin, err := strconv.ParseInt(pair[0], 10, 64)
+				if err != nil {
+					t.Errorf("unexpected range: want nil, got %v", err)
+				}
+				end, err := strconv.ParseInt(pair[1], 10, 64)
+				if err != nil {
+					t.Errorf("unexpected range: want nil, got %v", err)
+				}
+				// 真实 COS 服务端对非法区间会返回 416。
+				if begin > end || end >= fileSize {
+					return &http.Response{
+						StatusCode: http.StatusRequestedRangeNotSatisfiable,
+						Body:       NewReader(nil, nil, nil, nil),
+					}, nil
+				}
+				rangeCount.Add(1)
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       NewReader(data[begin:end+1], nil, nil, nil),
+				}, nil
+			}
+			return nil, nil
+		}
+		nonUseDisk := cos.WithNonUseDisk()
+		if rand.Intn(2) == 0 {
+			nonUseDisk = nil
+		}
+		client := cos.NewClient(host, appKey, appSecret, nonUseDisk, cos.WithHttpClient(MockHttpClient(fn)))
+		rc, size, err := client.Download(context.Background(), fileId)
+		if err != nil {
+			t.Fatalf("unexpected error: want nil, got %v", err)
+		}
+		if size != fileSize {
+			t.Errorf("unexpected size: want %v, got %v", fileSize, size)
+		}
+		bs, err := io.ReadAll(rc)
+		if err != nil {
+			t.Fatalf("unexpected error: want nil, got %v", err)
+		}
+		if err = rc.Close(); err != nil {
+			t.Errorf("unexpected error: want nil, got %v", err)
+		}
+		if !bytes.Equal(data, bs) {
+			t.Errorf("unexpected data: want %v, got %v", len(data), len(bs))
+		}
+		if got := rangeCount.Load(); got != parts {
+			t.Errorf("unexpected range count: want %v, got %v", parts, got)
+		}
+		if closeCount := atomic.LoadInt32(&CloseCount); closeCount != 0 {
+			t.Errorf("unexpected close count: want 0, got %v", closeCount)
+		}
+	}
+}
+
+// TestGetDownloadUrl 验证下载链接的格式以及签名有效性。
+func TestGetDownloadUrl(t *testing.T) {
+	for range 100 {
+		fileId := "/dir/ivfzhou_test_file"
+		expiration := cos.AuthExpirationTime
+		urlStr := cos.NewClient(host, appKey, appSecret).GetDownloadUrl(fileId, expiration)
+		u, err := url.Parse(urlStr)
+		if err != nil {
+			t.Fatalf("unexpected error: want nil, got %v", err)
+		}
+		if u.Scheme != "http" {
+			t.Errorf("unexpected scheme: want http, got %v", u.Scheme)
+		}
+		if u.Host != host {
+			t.Errorf("unexpected host: want %v, got %v", host, u.Host)
+		}
+		cleanFileId := strings.Trim(fileId, "/")
+		if u.Path != "/"+cleanFileId {
+			t.Errorf("unexpected path: want %v, got %v", "/"+cleanFileId, u.Path)
+		}
+		sign := u.Query().Get("sign")
+		if len(sign) <= 0 {
+			t.Errorf("unexpected sign: want >0, got %v", sign)
+		}
+		if !CheckAuthorization(sign, cleanFileId, http.MethodGet, http.Header{}, url.Values{}) {
+			t.Errorf("unexpected auth: got %v", sign)
+		}
+	}
+
+	// 使用 https 协议时，链接应使用 https。
+	urlStr := cos.NewClient(host, appKey, appSecret, cos.WithHttps()).
+		GetDownloadUrl("file", cos.AuthExpirationTime)
+	u, err := url.Parse(urlStr)
+	if err != nil {
+		t.Fatalf("unexpected error: want nil, got %v", err)
+	}
+	if u.Scheme != "https" {
+		t.Errorf("unexpected scheme: want https, got %v", u.Scheme)
+	}
 }

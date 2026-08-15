@@ -82,9 +82,7 @@ func TestUpload(t *testing.T) {
 							t.Errorf("unexpected content length: want %v, got %v", req.ContentLength, len(bs))
 						}
 						result.Store(num, bs)
-						wg.Add(1)
-						go func() {
-							defer wg.Done()
+						wg.Go(func() {
 							lock.Lock()
 							defer lock.Unlock()
 							parts = append(parts, PartInfo{
@@ -92,7 +90,7 @@ func TestUpload(t *testing.T) {
 								ETag:       uploadIdStr + "_etag",
 								Size:       strconv.Itoa(len(bs)),
 							})
-						}()
+						})
 					case http.MethodPost:
 						if req.URL.Query().Has("uploads") {
 							return &http.Response{
@@ -261,7 +259,7 @@ func TestUpload(t *testing.T) {
 						}
 						return &http.Response{
 							StatusCode: http.StatusOK,
-							Body:       NewReader(nil, nil, nil, nil),
+							Body:       http.NoBody,
 						}, nil
 					case http.MethodPut:
 						v := req.URL.Query().Get("uploadId")
@@ -281,9 +279,7 @@ func TestUpload(t *testing.T) {
 							t.Errorf("unexpected content length: want %v, got %v", req.ContentLength, len(bs))
 						}
 						result.Store(num, bs)
-						wg.Add(1)
-						go func() {
-							defer wg.Done()
+						wg.Go(func() {
 							lock.Lock()
 							defer lock.Unlock()
 							parts = append(parts, PartInfo{
@@ -291,7 +287,7 @@ func TestUpload(t *testing.T) {
 								ETag:       v + "_etag",
 								Size:       strconv.Itoa(len(bs)),
 							})
-						}()
+						})
 						if occurErrStep == 1 && num == occurErrPartNum {
 							return &http.Response{
 								StatusCode: http.StatusInternalServerError,
@@ -540,7 +536,7 @@ func TestUpload(t *testing.T) {
 						}
 						return &http.Response{
 							StatusCode: http.StatusOK,
-							Body:       NewReader(nil, nil, nil, nil),
+							Body:       http.NoBody,
 						}, nil
 					case http.MethodPut:
 						v := req.URL.Query().Get("uploadId")
@@ -560,9 +556,7 @@ func TestUpload(t *testing.T) {
 							t.Errorf("unexpected content length: want %v, got %v", req.ContentLength, len(bs))
 						}
 						result.Store(num, bs)
-						wg.Add(1)
-						go func() {
-							defer wg.Done()
+						wg.Go(func() {
 							lock.Lock()
 							defer lock.Unlock()
 							parts = append(parts, PartInfo{
@@ -570,7 +564,7 @@ func TestUpload(t *testing.T) {
 								ETag:       v + "_etag",
 								Size:       strconv.Itoa(len(bs)),
 							})
-						}()
+						})
 						if occurCancelStep == 1 && num == occurCancelPartNum {
 							cancel(expectedErr)
 						}
@@ -774,9 +768,7 @@ func TestUploadFromReader(t *testing.T) {
 						t.Errorf("unexpected content length: want %v, got %v", req.ContentLength, len(bs))
 					}
 					result.Store(num, bs)
-					wg.Add(1)
-					go func() {
-						defer wg.Done()
+					wg.Go(func() {
 						lock.Lock()
 						defer lock.Unlock()
 						parts = append(parts, PartInfo{
@@ -784,7 +776,7 @@ func TestUploadFromReader(t *testing.T) {
 							ETag:       uploadIdStr + "_etag",
 							Size:       strconv.Itoa(len(bs)),
 						})
-					}()
+					})
 				case http.MethodPost:
 					if req.URL.Query().Has("uploads") {
 						return &http.Response{
@@ -941,7 +933,7 @@ func TestUploadFromReader(t *testing.T) {
 					}
 					return &http.Response{
 						StatusCode: http.StatusOK,
-						Body:       NewReader(nil, nil, nil, nil),
+						Body:       http.NoBody,
 					}, nil
 				case http.MethodPut:
 					uploadIdStr := req.URL.Query().Get("uploadId")
@@ -961,9 +953,7 @@ func TestUploadFromReader(t *testing.T) {
 						t.Errorf("unexpected content length: want %v, got %v", req.ContentLength, len(bs))
 					}
 					result.Store(num, bs)
-					wg.Add(1)
-					go func() {
-						defer wg.Done()
+					wg.Go(func() {
 						lock.Lock()
 						defer lock.Unlock()
 						parts = append(parts, PartInfo{
@@ -971,7 +961,7 @@ func TestUploadFromReader(t *testing.T) {
 							ETag:       uploadIdStr + "_etag",
 							Size:       strconv.Itoa(len(bs)),
 						})
-					}()
+					})
 					if occurErrStep == 1 && num == occurErrPartNum {
 						return &http.Response{
 							StatusCode: http.StatusInternalServerError,
@@ -1167,7 +1157,7 @@ func TestUploadFromReader(t *testing.T) {
 					}
 					return &http.Response{
 						StatusCode: http.StatusOK,
-						Body:       NewReader(nil, nil, nil, nil),
+						Body:       http.NoBody,
 					}, nil
 				case http.MethodPut:
 					uploadIdStr := req.URL.Query().Get("uploadId")
@@ -1187,9 +1177,7 @@ func TestUploadFromReader(t *testing.T) {
 						t.Errorf("unexpected content length: want %v, got %v", req.ContentLength, len(bs))
 					}
 					result.Store(num, bs)
-					wg.Add(1)
-					go func() {
-						defer wg.Done()
+					wg.Go(func() {
 						lock.Lock()
 						defer lock.Unlock()
 						parts = append(parts, PartInfo{
@@ -1197,7 +1185,7 @@ func TestUploadFromReader(t *testing.T) {
 							ETag:       uploadIdStr + "_etag",
 							Size:       strconv.Itoa(len(bs)),
 						})
-					}()
+					})
 					return &http.Response{
 						StatusCode: http.StatusOK,
 						Body:       NewReader(nil, nil, nil, nil),
@@ -1375,9 +1363,7 @@ func TestUploadFromReader(t *testing.T) {
 						t.Errorf("unexpected content length: want %v, got %v", req.ContentLength, len(bs))
 					}
 					result.Store(num, bs)
-					wg.Add(1)
-					go func() {
-						defer wg.Done()
+					wg.Go(func() {
 						lock.Lock()
 						defer lock.Unlock()
 						parts = append(parts, PartInfo{
@@ -1385,7 +1371,7 @@ func TestUploadFromReader(t *testing.T) {
 							ETag:       v + "_etag",
 							Size:       strconv.Itoa(len(bs)),
 						})
-					}()
+					})
 				case http.MethodPost:
 					if req.URL.Query().Has("uploads") {
 						return &http.Response{
@@ -1543,7 +1529,7 @@ func TestUploadFromReader(t *testing.T) {
 					}
 					return &http.Response{
 						StatusCode: http.StatusOK,
-						Body:       NewReader(nil, nil, nil, nil),
+						Body:       http.NoBody,
 					}, nil
 				case http.MethodPut:
 					v := req.URL.Query().Get("uploadId")
@@ -1563,9 +1549,7 @@ func TestUploadFromReader(t *testing.T) {
 						t.Errorf("unexpected content length: want %v, got %v", req.ContentLength, len(bs))
 					}
 					result.Store(num, bs)
-					wg.Add(1)
-					go func() {
-						defer wg.Done()
+					wg.Go(func() {
 						lock.Lock()
 						defer lock.Unlock()
 						parts = append(parts, PartInfo{
@@ -1573,7 +1557,7 @@ func TestUploadFromReader(t *testing.T) {
 							ETag:       v + "_etag",
 							Size:       strconv.Itoa(len(bs)),
 						})
-					}()
+					})
 					if occurCancelStep == 1 && num == occurCancelPartNum {
 						cancel(expectedErr)
 					}
@@ -1772,9 +1756,7 @@ func TestUploadFromReaderWithSize(t *testing.T) {
 							t.Errorf("unexpected content length: want %v, got %v", req.ContentLength, len(bs))
 						}
 						result.Store(num, bs)
-						wg.Add(1)
-						go func() {
-							defer wg.Done()
+						wg.Go(func() {
 							lock.Lock()
 							defer lock.Unlock()
 							parts = append(parts, PartInfo{
@@ -1782,7 +1764,7 @@ func TestUploadFromReaderWithSize(t *testing.T) {
 								ETag:       uploadIdStr + "_etag",
 								Size:       strconv.Itoa(len(bs)),
 							})
-						}()
+						})
 					case http.MethodPost:
 						if req.URL.Query().Has("uploads") {
 							return &http.Response{
@@ -1951,7 +1933,7 @@ func TestUploadFromReaderWithSize(t *testing.T) {
 						}
 						return &http.Response{
 							StatusCode: http.StatusOK,
-							Body:       NewReader(nil, nil, nil, nil),
+							Body:       http.NoBody,
 						}, nil
 					case http.MethodPut:
 						uploadIdStr := req.URL.Query().Get("uploadId")
@@ -1971,9 +1953,7 @@ func TestUploadFromReaderWithSize(t *testing.T) {
 							t.Errorf("unexpected content length: want %v, got %v", req.ContentLength, len(bs))
 						}
 						result.Store(num, bs)
-						wg.Add(1)
-						go func() {
-							defer wg.Done()
+						wg.Go(func() {
 							lock.Lock()
 							defer lock.Unlock()
 							parts = append(parts, PartInfo{
@@ -1981,7 +1961,7 @@ func TestUploadFromReaderWithSize(t *testing.T) {
 								ETag:       uploadIdStr + "_etag",
 								Size:       strconv.Itoa(len(bs)),
 							})
-						}()
+						})
 						if occurErrStep == 1 && num == occurErrPartNum {
 							return &http.Response{
 								StatusCode: http.StatusInternalServerError,
@@ -2184,7 +2164,7 @@ func TestUploadFromReaderWithSize(t *testing.T) {
 					}
 					return &http.Response{
 						StatusCode: http.StatusOK,
-						Body:       NewReader(nil, nil, nil, nil),
+						Body:       http.NoBody,
 					}, nil
 				case http.MethodPut:
 					if !much {
@@ -2214,9 +2194,7 @@ func TestUploadFromReaderWithSize(t *testing.T) {
 							t.Errorf("unexpected content length: want %v, got %v", req.ContentLength, len(bs))
 						}
 						result.Store(num, bs)
-						wg.Add(1)
-						go func() {
-							defer wg.Done()
+						wg.Go(func() {
 							lock.Lock()
 							defer lock.Unlock()
 							parts = append(parts, PartInfo{
@@ -2224,7 +2202,7 @@ func TestUploadFromReaderWithSize(t *testing.T) {
 								ETag:       uploadIdStr + "_etag",
 								Size:       strconv.Itoa(len(bs)),
 							})
-						}()
+						})
 					}
 					return &http.Response{
 						StatusCode: http.StatusOK,
@@ -2442,7 +2420,7 @@ func TestUploadFromReaderWithSize(t *testing.T) {
 					}
 					return &http.Response{
 						StatusCode: http.StatusOK,
-						Body:       NewReader(nil, nil, nil, nil),
+						Body:       http.NoBody,
 					}, nil
 				case http.MethodPut:
 					if !much {
@@ -2475,9 +2453,7 @@ func TestUploadFromReaderWithSize(t *testing.T) {
 							t.Errorf("unexpected content length: want %v, got %v", req.ContentLength, len(bs))
 						}
 						result.Store(num, bs)
-						wg.Add(1)
-						go func() {
-							defer wg.Done()
+						wg.Go(func() {
 							lock.Lock()
 							defer lock.Unlock()
 							parts = append(parts, PartInfo{
@@ -2485,7 +2461,7 @@ func TestUploadFromReaderWithSize(t *testing.T) {
 								ETag:       uploadIdStr + "_etag",
 								Size:       strconv.Itoa(len(bs)),
 							})
-						}()
+						})
 						if occurCancelStep == 1 && num == occurCancelPartNum {
 							cancel(expectedErr)
 						}
@@ -2687,9 +2663,7 @@ func TestUploadFromDisk(t *testing.T) {
 							t.Errorf("unexpected content length: want %v, got %v", req.ContentLength, len(bs))
 						}
 						result.Store(num, bs)
-						wg.Add(1)
-						go func() {
-							defer wg.Done()
+						wg.Go(func() {
 							lock.Lock()
 							defer lock.Unlock()
 							parts = append(parts, PartInfo{
@@ -2697,7 +2671,7 @@ func TestUploadFromDisk(t *testing.T) {
 								ETag:       uploadIdStr + "_etag",
 								Size:       strconv.Itoa(len(bs)),
 							})
-						}()
+						})
 					case http.MethodPost:
 						if req.URL.Query().Has("uploads") {
 							return &http.Response{
@@ -2879,7 +2853,7 @@ func TestUploadFromDisk(t *testing.T) {
 						}
 						return &http.Response{
 							StatusCode: http.StatusOK,
-							Body:       NewReader(nil, nil, nil, nil),
+							Body:       http.NoBody,
 						}, nil
 					case http.MethodPut:
 						uploadIdStr := req.URL.Query().Get("uploadId")
@@ -2899,9 +2873,7 @@ func TestUploadFromDisk(t *testing.T) {
 							t.Errorf("unexpected content length: want %v, got %v", req.ContentLength, len(bs))
 						}
 						result.Store(num, bs)
-						wg.Add(1)
-						go func() {
-							defer wg.Done()
+						wg.Go(func() {
 							lock.Lock()
 							defer lock.Unlock()
 							parts = append(parts, PartInfo{
@@ -2909,7 +2881,7 @@ func TestUploadFromDisk(t *testing.T) {
 								ETag:       uploadIdStr + "_etag",
 								Size:       strconv.Itoa(len(bs)),
 							})
-						}()
+						})
 						if occurErrStep == 1 && num == occurErrPartNum {
 							return &http.Response{
 								StatusCode: http.StatusInternalServerError,
@@ -3133,7 +3105,7 @@ func TestUploadFromDisk(t *testing.T) {
 						}
 						return &http.Response{
 							StatusCode: http.StatusOK,
-							Body:       NewReader(nil, nil, nil, nil),
+							Body:       http.NoBody,
 						}, nil
 					case http.MethodPut:
 						uploadIdStr := req.URL.Query().Get("uploadId")
@@ -3153,9 +3125,7 @@ func TestUploadFromDisk(t *testing.T) {
 							t.Errorf("unexpected content length: want %v, got %v", req.ContentLength, len(bs))
 						}
 						result.Store(num, bs)
-						wg.Add(1)
-						go func() {
-							defer wg.Done()
+						wg.Go(func() {
 							lock.Lock()
 							defer lock.Unlock()
 							parts = append(parts, PartInfo{
@@ -3163,7 +3133,7 @@ func TestUploadFromDisk(t *testing.T) {
 								ETag:       uploadIdStr + "_etag",
 								Size:       strconv.Itoa(len(bs)),
 							})
-						}()
+						})
 						if occurErrStep == 1 && num == occurErrPartNum {
 							cancel(expectedErr)
 						}

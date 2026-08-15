@@ -261,7 +261,7 @@ func (c *downloadImpl) multiDownloadToReader(ctx context.Context, fileId string,
 	go func() {
 		partSize := getPartSize()
 		for offset, end, next := int64(0), partSize-1, true; next; {
-			if end > fileSize-1 {
+			if end >= fileSize-1 {
 				end = fileSize - 1
 				next = false
 			}
