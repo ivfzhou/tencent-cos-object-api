@@ -13,6 +13,6 @@ module gitee.com/ivfzhou/tencent-cos-object-api
 go 1.26
 
 require (
-	gitee.com/ivfzhou/goroutine-util v1.0.8-0.20260815142127-4c8d68068ef1
-	gitee.com/ivfzhou/io-util v1.3.3-0.20260815145141-f1509af1ee8c
+	gitee.com/ivfzhou/goroutine-util v1.0.8
+	gitee.com/ivfzhou/io-util v1.3.3
 )
