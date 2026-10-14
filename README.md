@@ -1,4 +1,4 @@
-# 一、书名
+# 一、说明
 
 高性能腾讯云 COS（云对象存储）文件上传、下载、删除、查询 Go 客户端库。
 
@@ -34,8 +34,7 @@ client := cos.NewClient("your_host", "app_key", "app_secret")
 err := client.Ping(ctx)
 ```
 
-## 创建客户端（可选配置）
-
+创建客户端（可选配置）：
 ```golang
 import (
     "net/http"
@@ -59,14 +58,14 @@ client := cos.NewClient("your_host", "app_key", "app_secret", cos.WithNonUseDisk
 
 # 五、API 文档
 
-### 上传文件
+## 5.1 上传文件
 
-| 方法 | 说明 |
-|------|------|
-| `Upload(ctx, fileId, []byte)` | 通过字节数组上传 |
-| `UploadFromReader(ctx, fileId, io.Reader)` | 从 Reader 流式上传 |
+| 方法                                                              | 说明                   |
+|-------------------------------------------------------------------|------------------------|
+| `Upload(ctx, fileId, []byte)`                                     | 通过字节数组上传       |
+| `UploadFromReader(ctx, fileId, io.Reader)`                        | 从 Reader 流式上传     |
 | `UploadFromReaderWithSize(ctx, fileId, contentLength, io.Reader)` | 指定大小的 Reader 上传 |
-| `UploadFromDisk(ctx, fileId, filePath)` | 从本地上传文件 |
+| `UploadFromDisk(ctx, fileId, filePath)`                           | 从本地上传文件         |
 
 > 当文件大小超过阈值（默认 `PartSize * MultiThreshold` = 100MB）或大于 5GiB 时，会自动使用分片模式上传。
 
@@ -83,18 +82,18 @@ err := client.UploadFromReader(ctx, "dir/file.txt", file)
 err := client.UploadFromDisk(ctx, "dir/file.txt", "/path/to/local/file.txt")
 ```
 
-### 分片上传
+## 5.2 分片上传
 
 适用于大文件或需要控制上传进度的场景。
 
-| 方法 | 说明 |
-|------|------|
-| `InitMultiUpload(ctx, fileId)` | 初始化分片上传任务，返回 uploadId |
-| `UploadPart(ctx, fileId, uploadId, partNumber, []byte)` | 上传单个分片（字节） |
-| `UploadPartByReader(ctx, fileId, uploadId, partNumber, contentLength, io.Reader)` | 上传单个分片（流式） |
-| `ListFileParts(ctx, fileId, uploadId)` | 查询已上传的分片列表 |
-| `CompleteMultiUpload(ctx, fileId, uploadId)` | 完成分片上传，合并所有分片 |
-| `AbortMultiUpload(ctx, fileId, uploadId)` | 取消分片上传，丢弃已上传的分片 |
+| 方法                                                                              | 说明                              |
+|-----------------------------------------------------------------------------------|-----------------------------------|
+| `InitMultiUpload(ctx, fileId)`                                                    | 初始化分片上传任务，返回 uploadId |
+| `UploadPart(ctx, fileId, uploadId, partNumber, []byte)`                           | 上传单个分片（字节）              |
+| `UploadPartByReader(ctx, fileId, uploadId, partNumber, contentLength, io.Reader)` | 上传单个分片（流式）              |
+| `ListFileParts(ctx, fileId, uploadId)`                                            | 查询已上传的分片列表              |
+| `CompleteMultiUpload(ctx, fileId, uploadId)`                                      | 完成分片上传，合并所有分片        |
+| `AbortMultiUpload(ctx, fileId, uploadId)`                                         | 取消分片上传，丢弃已上传的分片    |
 
 ```golang
 uploadId, err := client.InitMultiUpload(ctx, "large/file.bin")
@@ -118,16 +117,16 @@ for ... {
 err := client.CompleteMultiUpload(ctx, "large/file.bin", uploadId)
 ```
 
-### 下载文件
+## 5.3 下载文件
 
-| 方法 | 说明 |
-|------|------|
-| `Download(ctx, fileId)` | 下载文件，返回 `io.ReadCloser` 和文件大小（**调用方需负责关闭**） |
-| `DownloadToWriter(ctx, fileId, io.Writer)` | 下载到 Writer |
-| `DownloadToWriterWithSize(ctx, fileId, contentLength, io.Writer)` | 指定大小下载到 Writer |
-| `DownloadToDisk(ctx, fileId, filePath)` | 下载到本地文件 |
-| `DownloadToWriterAt(ctx, fileId, io.WriterAt)` | 下载到 WriterAt（支持随机写入） |
-| `GetDownloadUrl(fileId, expiration)` | 生成带签名的下载链接 |
+| 方法                                                              | 说明                                                              |
+|-------------------------------------------------------------------|-------------------------------------------------------------------|
+| `Download(ctx, fileId)`                                           | 下载文件，返回 `io.ReadCloser` 和文件大小（**调用方需负责关闭**） |
+| `DownloadToWriter(ctx, fileId, io.Writer)`                        | 下载到 Writer                                                     |
+| `DownloadToWriterWithSize(ctx, fileId, contentLength, io.Writer)` | 指定大小下载到 Writer                                             |
+| `DownloadToDisk(ctx, fileId, filePath)`                           | 下载到本地文件                                                    |
+| `DownloadToWriterAt(ctx, fileId, io.WriterAt)`                    | 下载到 WriterAt（支持随机写入）                                   |
+| `GetDownloadUrl(fileId, expiration)`                              | 生成带签名的下载链接                                              |
 
 ```golang
 // 读取为流
@@ -148,11 +147,11 @@ err := client.DownloadToWriter(ctx, "dir/file.txt", &buf)
 url := client.GetDownloadUrl("dir/file.txt", 7*24*time.Hour)
 ```
 
-### 删除文件
+## 5.4 删除文件
 
-| 方法 | 说明 |
-|------|------|
-| `Delete(ctx, fileId)` | 删除单个文件 |
+| 方法                       | 说明                                         |
+|----------------------------|----------------------------------------------|
+| `Delete(ctx, fileId)`      | 删除单个文件                                 |
 | `Deletes(ctx, fileIds...)` | 批量删除多个文件，返回未成功删除的文件及错误 |
 
 ```golang
@@ -166,13 +165,13 @@ for fid, e := range undeleted {
 }
 ```
 
-### 文件查询
+## 5.5 文件查询
 
-| 方法 | 说明 |
-|------|------|
-| `Info(ctx, fileId)` | 获取文件详细信息（大小、ETag、CRC64、上传时间、过期时间） |
-| `Exist(ctx, fileId)` | 判断文件是否存在 |
-| `ListFiles(ctx, dir, prefix, offset, limit)` | 分页列举目录下的文件 |
+| 方法                                         | 说明                                                      |
+|----------------------------------------------|-----------------------------------------------------------|
+| `Info(ctx, fileId)`                          | 获取文件详细信息（大小、ETag、CRC64、上传时间、过期时间） |
+| `Exist(ctx, fileId)`                         | 判断文件是否存在                                          |
+| `ListFiles(ctx, dir, prefix, offset, limit)` | 分页列举目录下的文件                                      |
 
 ```golang
 // 获取文件信息
@@ -197,53 +196,20 @@ if err == nil {
 }
 ```
 
-### 工具方法
+## 5.6 工具方法
 
-| 方法 | 说明 |
-|------|------|
-| `Ping(ctx)` | 测试与服务端的连通性 |
+| 方法                                                               | 说明                     |
+|--------------------------------------------------------------------|--------------------------|
+| `Ping(ctx)`                                                        | 测试与服务端的连通性     |
 | `GenerateAuthorization(fileId, method, query, header, expiration)` | 生成 HTTP 请求签名字符串 |
 
 # 六、全局配置项
 
 可在初始化客户端之前修改以下全局变量来自定义行为：
 
-| 变量 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| `cos.PartSize` | `int64` | `10 * 1024 * 1024` (10MB) | 单个分片的大小，范围 1MiB ~ 5GiB |
-| `cos.MultiThreshold` | `int` | `10` | 超过此数量的分片后启用分片模式（即 10 * PartSize = 100MB） |
-| `cos.NumRoutines` | `int` | `5` | 分片上传/下载时的并发协程数 |
-| `cos.AuthExpirationTime` | `time.Duration` | `10 * time.Minute` | 每个 HTTP 请求凭证的有效期 |
-
-# 七、数据类型
-
-### File（文件列表项）
-
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| ID | `string` | 文件 ID / 路径 |
-| Size | `int64` | 文件大小（字节） |
-| EntityTag | `string` | ETag 标签 |
-| UploadTime | `time.Time` | 最近一次上传时间 |
-
-### FileInfo（文件详情）
-
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| Size | `int64` | 文件大小（字节） |
-| EntityTag | `string` | ETag 标签 |
-| Crc64 | `string` | CRC64 校验值 |
-| UploadTime | `time.Time` | 上传时间 |
-| ExpireTime | `time.Time` | 过期时间 |
-
-### FilePartInfo（分片信息）
-
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| PartNumber | `int` | 分片序号 |
-| EntityTag | `string` | 该分片的 ETag |
-| Size | `int64` | 分片大小（字节） |
-
-### 错误
-
-- `cos.ErrNotExists` — 文件不存在错误
+| 变量                     | 类型            | 默认值                    | 说明                                                       |
+|--------------------------|-----------------|---------------------------|------------------------------------------------------------|
+| `cos.PartSize`           | `int64`         | `10 * 1024 * 1024` (10MB) | 单个分片的大小，范围 1MiB ~ 5GiB                           |
+| `cos.MultiThreshold`     | `int`           | `10`                      | 超过此数量的分片后启用分片模式（即 10 * PartSize = 100MB） |
+| `cos.NumRoutines`        | `int`           | `5`                       | 分片上传/下载时的并发协程数                                |
+| `cos.AuthExpirationTime` | `time.Duration` | `10 * time.Minute`        | 每个 HTTP 请求凭证的有效期                                 |
